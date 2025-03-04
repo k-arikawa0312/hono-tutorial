@@ -36,7 +36,8 @@ app.get('/posts/:id', (c) => {
   if (post) {
     return c.json(post)
   } else {
-    return c.status(404).json({error: 'Post not found'})
+    c.status(404)
+    return c.json({error: 'Post not found'})
   }
 })
 
@@ -52,13 +53,26 @@ app.put("/posts/:id", async (c) => {
   const index = blogPosts.findIndex(p => p.id === Number(id))
 
   if (index === -1) {
-    return c.status(404).json({error: 'Post not found'})
+    return c.json({error: 'Post not found'})
   }
 
   const {title, content} = await c.req.json<{title: string, content: string}>()
   blogPosts[index] = {...blogPosts[index], title, content}
 
   return c.json(blogPosts[index])
+})
+
+app.delete("/posts/:id", async (c) => {
+  const id = c.req.param("id")
+  const index = blogPosts.findIndex(p => p.id === Number(id))
+
+  if (index === -1) {
+    return c.json({error: 'Post not found'})
+  }
+
+  blogPosts = blogPosts.filter(p => p.id !== Number(id))
+
+  return c.json({message: 'Post deleted'})
 })
 
 export default app
